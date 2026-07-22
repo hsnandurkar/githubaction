@@ -3,36 +3,23 @@ name: Terraform Deploy
 on:
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   terraform:
     runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Print GitHub Context
-        run: |
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Branch Ref: $GITHUB_REF"
-          echo "Workflow: $GITHUB_WORKFLOW"
-          echo "Actor: $GITHUB_ACTOR"
-          echo "Event: $GITHUB_EVENT_NAME"
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Configure AWS Credentials using OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::399090453148:role/githubactionh
-          aws-region: us-east-1
-
-      - name: Verify AWS Identity
+      - name: Verify AWS Credentials
         run: aws sts get-caller-identity
 
       - name: Terraform Init
