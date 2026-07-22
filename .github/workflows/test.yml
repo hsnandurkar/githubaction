@@ -1,32 +1,66 @@
+# name: Terraform Deploy
+
+# on:
+#   workflow_dispatch:
+
+# jobs:
+#   terraform:
+#     runs-on: ubuntu-latest
+
+#     env:
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       AWS_DEFAULT_REGION: us-east-1
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+
+#       - name: Terraform Init
+#         run: terraform init
+
+#       - name: Terraform Validate
+#         run: terraform validate
+
+#       - name: Terraform Plan
+#         run: terraform plan -out=tfplan
+
+#       - name: Terraform Apply
+#         run: terraform apply -auto-approve tfplan
+
+# =========================================================
+
 name: Terraform Deploy
 
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: us-east-1
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::399090453148:role/githubactionh
+          aws-region: us-east-1
 
-      - name: Terraform Validate
-        run: terraform validate
+      - run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+      - run: terraform validate
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+      - run: terraform plan
+
+      - run: terraform apply -auto-approve
