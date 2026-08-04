@@ -10,11 +10,3 @@ resource "aws_instance" "name" {
       Name = "My-Instance"
     }
 }
-
-resource "aws_s3_bucket" "tf_state" {
-  bucket = "statefilelockbucket"
-
-  tags = {
-    Name = "Terraform State Bucket"
-  }
-}
